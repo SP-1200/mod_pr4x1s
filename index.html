@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mod_pr4x1s for the Rossum SP-1200</title>
+<meta name="description" content="A RAM-only firmware mod for the Rossum SP-1200. Build it in your browser from your own copy of Main FW 1.04.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <h1>mod_pr4x1s</h1>
+  <p class="lede">A custom mod of firmware 1.04 for the Rossum SP-1200.</p>
+  <nav>
+    <a href="#intro">Intro</a>
+    <a href="#mod">The mod</a>
+    <a href="#warning">Warning</a>
+    <a href="#install">Installation</a>
+    <a href="#usage">Usage</a>
+  </nav>
+</header>
+
+<main>
+<section id="intro">
+  <h2>Intro</h2>
+  <p>mod_pr4x1s is a custom mod of firmware 1.04 for the Rossum SP-1200. It brings a subset of the features of <a href="https://www.instagram.com/pfer">pfer</a>'s mod for the original E-mu SP-1200, <a href="https://spf1200.com">SPf1200</a>, to the Rossum SP-1200.</p>
+  <p>Why a separate mod? The two machines start up differently. The E-mu boots its firmware from a floppy disk or disk image, so there's no stored firmware to corrupt. The Rossum keeps its firmware in internal storage. mod_pr4x1s gets in through the boot path meant for EEPROM updates, and uses it to load only into memory, so the stored firmware is never changed (see <a href="#warning">Warning</a>). This path caps the file at the size of the original Rossum firmware, so the firmware and the mod are packed into it together, and new features have to fit in the room that's left.</p>
+</section>
+
+<section id="mod">
+  <h2>The modification</h2>
+  <p>mod_pr4x1s gives the segment screen both lines of the display, so everything you need while making a beat is in one place. It also adds a count-in, a readout of which output a pad plays on, and undo/redo for your last take. Everything else works as on a stock SP-1200.</p>
+
+  <h3>The segment screen</h3>
+  <figure class="lcd-figure">
+    <div class="lcd lcd-big" role="img" aria-label="Segment screen: S01, 50%, tempo 120.0; 1/8, 01.01, Rec"><span>S01  50% ♪=120.0</span><span>1/8   01.01 Rec </span></div>
+  </figure>
+  <dl class="fields">
+    <dt><span class="screen">S01</span></dt>
+    <dd>The segment. Type a number or use <kbd>&lt;</kbd> <kbd>&gt;</kbd>, as usual.</dd>
+    <dt><span class="screen">50%</span></dt>
+    <dd>Swing, as a percentage.</dd>
+    <dt><span class="screen">♪=120.0</span></dt>
+    <dd>Tempo. The <span class="screen">=</span> turns into <span class="screen">!</span> while you hold <kbd>Tap/Repeat</kbd>.</dd>
+    <dt><span class="screen">1/8</span></dt>
+    <dd>Auto-correct.</dd>
+    <dt><span class="screen">01.01</span></dt>
+    <dd>Position, as bar.beat. It counts while playing and recording, and stays where you stopped.</dd>
+    <dt><span class="screen">Rec</span></dt>
+    <dd>Status: blank when stopped, <span class="screen">Play</span>, <span class="screen">Rec</span>, <span class="screen">Cnt</span> during a count-in, and <span class="screen">Undo</span> or <span class="screen">Redo</span>.</dd>
+  </dl>
+
+  <h3>In action</h3>
+  <div class="states">
+    <article class="state">
+      <div class="lcd" role="img" aria-label="1/8, 01.01, blank status"><span>S01  50% ♪=120.0</span><span>1/8   01.01     </span></div>
+      <h4>Stopped</h4>
+      <p>The status is blank. After you stop, the position shows where you stopped.</p>
+    </article>
+    <article class="state">
+      <div class="lcd" role="img" aria-label="1/8, 03.02, Play"><span>S01  50% ♪=120.0</span><span>1/8   03.02 Play</span></div>
+      <h4>Playing</h4>
+      <p>The position counts bars and beats as the segment plays.</p>
+    </article>
+    <article class="state">
+      <div class="lcd" role="img" aria-label="1/8, 02.04, Rec"><span>S01  50% ♪=120.0</span><span>1/8   02.04 Rec </span></div>
+      <h4>Recording</h4>
+      <p>Press <kbd>Record/Edit</kbd> while recording to punch out and in. The status follows: <span class="screen">Play</span> while you're punched out, <span class="screen">Rec</span> while you're recording.</p>
+    </article>
+    <article class="state">
+      <div class="lcd" role="img" aria-label="1/8, 00.03, Cnt"><span>S01  50% ♪=120.0</span><span>1/8   00.03 Cnt </span></div>
+      <h4>Count-in</h4>
+      <p>Hold <kbd>Tap/Repeat</kbd> and <kbd>Record/Edit</kbd>, then press <kbd>Run/Stop</kbd>. You get one bar of clicks, with beat 1 accented, at the metronome's volume (even if the metronome is off). The screen counts <span class="screen">00.01</span> to <span class="screen">00.04</span>, then recording starts at <span class="screen">01.01</span>. Pads you hit during the count-in sound but aren't recorded, except in its last half beat: those land on the downbeat. There's no count-in under external sync.</p>
+    </article>
+    <article class="state">
+      <div class="lcd" role="img" aria-label="1/8, A3-7 asterisk"><span>S01  50% ♪=120.0</span><span>1/8   A3-7*     </span></div>
+      <h4>Which output is this pad on?</h4>
+      <p>Hit a pad and the position briefly shows its bank, pad and output: <span class="screen">A3-7</span> is bank A, pad 3, output 7. A <span class="screen">*</span> means Dynamic Allocation (Special 22) is on for that output pair. While stopped, the readout stays until the next hit. While playing or recording, the position comes back at the next beat.</p>
+    </article>
+    <article class="state">
+      <div class="lcd" role="img" aria-label="1/8, 01.01, Undo"><span>S01  50% ♪=120.0</span><span>1/8   01.01 Undo</span></div>
+      <h4>Undo and redo</h4>
+      <p>Stopped, hold <kbd>Record/Edit</kbd> and press <kbd>Copy</kbd>: the segment goes back to how it was before your last take, and the status shows <span class="screen">Undo</span>. Press again for <span class="screen">Redo</span>. It keeps toggling, so you can compare by ear. Swing and length changes made since the take are undone and redone along with it. If there's nothing to undo, for example after you've recorded on another segment, the SP-1200 beeps and nothing changes.</p>
+    </article>
+  </div>
+</section>
+
+<section id="warning" class="warning">
+  <h2>Warning</h2>
+  <p>mod_pr4x1s is unofficial software that changes how your SP-1200 behaves. It was built to be as safe as we could make it. Please read how it protects your machine, and where its limits are, before you use it.</p>
+
+  <h3>How it protects your SP-1200</h3>
+  <ul>
+    <li><strong>It runs from memory only.</strong> mod_pr4x1s never writes to the SP-1200's EEPROM or to its installed operating system. Switch the SP-1200 off and the mod is gone. A normal power-on starts Rossum's firmware exactly as before.</li>
+    <li><strong>It uses a special boot method.</strong> Holding <kbd>Sync</kbd> at power-on makes the SP-1200 load a file from the card into memory and run it. That's the route Rossum's own EEPROM updater takes, but mod_pr4x1s uses it to instead start the modified firmware in memory. It reprograms nothing. The startup code that does this belongs to the SP-1200, and the mod never changes it. A corrupted or bad build can't brick the machine that way: switch off, then power on normally.</li>
+    <li><strong>It checks at every step.</strong> This page builds the mod only from an unmodified copy of Rossum's 1.04 firmware, and checks the result against the reference build. The SP-1200 checks the file as it loads it. Then mod_pr4x1s checks the firmware it has unpacked before running it. If anything doesn't match, it stops with a diagnostic screen instead of running.</li>
+  </ul>
+
+  <h3>But things can still go wrong</h3>
+  <ul>
+    <li><strong>It's unofficial.</strong> mod_pr4x1s isn't made, endorsed or supported by Rossum Electro-Music. If something seems wrong, switch off and check whether it also happens after a normal power-on.</li>
+    <li><strong>Not everything has been tested.</strong></li>
+    <li><strong>Back up your work.</strong> Save your sequences and sounds to a card before you use the mod, and keep copies.</li>
+    <li><strong>Follow the instructions.</strong> If <span class="screen">ReprogramEEPROM? YES/NO</span> ever appears, press <kbd>No</kbd>. Don't use Special 28 (UpdateSftware) while the mod is running.</li>
+  </ul>
+
+  <p class="responsibility">You use mod_pr4x1s at your own risk. It's provided as is, without warranty of any kind, and you're responsible for your own equipment.</p>
+</section>
+
+<section id="install">
+  <h2>Installation</h2>
+  <p>mod_pr4x1s is built from Rossum's own firmware, which you download from Rossum. This page builds the mod from it on your computer.</p>
+  <ol class="steps">
+    <li>
+      Download Rossum's Main FW 1.04:
+      <a href="https://cdn.shopify.com/s/files/1/0277/4548/4865/files/SP1200fw_1_04_240507.zip"><code>SP1200fw_1_04_240507.zip</code></a>.
+      If that link doesn't work, get it from <a href="https://www.rossum-electro.com/pages/downloads">Rossum's downloads page</a> (Main FW 1.04). There's no need to unzip it.
+    </li>
+    <li>Drop the zip below, or the <code>sp1200fw.bin</code> inside it. The page checks that it's an unmodified copy of 1.04 and builds <code>sp1200eefw.bin</code>.</li>
+    <li>Download the zip and unzip it. Copy <strong>only</strong> <code>sp1200eefw.bin</code> to the top level of your SP-1200's SD card: not the README, and not the zip. Keep that file name. If the card already has a file with that name, replace it. Eject the card before you take it out.</li>
+  </ol>
+
+  <div id="drop" class="drop" tabindex="0" role="button" aria-describedby="drop-hint">
+    <input id="file" type="file" accept=".bin,.zip" hidden>
+    <p class="drop-main">Drop <code>sp1200fw.bin</code> or Rossum's <code>.zip</code> here</p>
+    <p id="drop-hint" class="drop-hint">or click to choose a file. It never leaves your computer: everything runs in this page.</p>
+  </div>
+
+  <div id="result" class="result" hidden aria-live="polite">
+    <dl>
+      <dt>File</dt><dd id="r-name"></dd>
+      <dt>Size</dt><dd id="r-size"></dd>
+      <dt>MD5</dt><dd><code id="r-md5"></code> <span id="r-md5-ok"></span></dd>
+    </dl>
+    <p id="r-msg" class="msg"></p>
+    <div id="r-out" hidden>
+      <dl>
+        <dt>Built</dt><dd><code>sp1200eefw.bin</code>, <span id="o-size"></span></dd>
+        <dt>MD5</dt><dd><code id="o-md5"></code> <span class="ok">✓</span></dd>
+      </dl>
+      <label class="ack"><input type="checkbox" id="ack"> I've read the <a href="#warning">Warning</a>, and I'm responsible for my own equipment.</label>
+      <div class="downloads">
+        <button type="button" id="dl-zip" class="button" disabled>Download <span id="zip-name">mod_pr4x1s.zip</span></button>
+        <button type="button" id="dl-bin" class="button secondary" disabled>Just sp1200eefw.bin</button>
+      </div>
+      <p class="drop-hint">The zip holds <code>sp1200eefw.bin</code> and a <code>README.txt</code> with the warning and the steps below.</p>
+    </div>
+  </div>
+</section>
+
+<section id="usage">
+  <h2>Usage</h2>
+  <p>mod_pr4x1s runs from memory only. Load it from the card each time you want it. A normal power-on starts the original Rossum firmware.</p>
+  <ol class="steps">
+    <li>Turn off your Rossum SP-1200.</li>
+    <li>Put the card in your SP-1200. Hold <kbd>Sync</kbd> and switch the SP-1200 on.</li>
+    <li>At <span class="screen">Update EEPROM software? [Y/N]</span>, press <kbd>Yes</kbd>. Despite the wording, mod_pr4x1s doesn't write to the EEPROM.</li>
+    <li>At <span class="screen">Insert Card with SW</span>, press <kbd>Enter</kbd>.</li>
+    <li>The screen shows <span class="screen">mod_pr4x1s / Loading OS...</span> briefly, then the SP-1200 starts as usual. Setup 23 shows <span class="screen">Main FW 1.04+pxs</span> while the mod is running.</li>
+  </ol>
+  <p>The mod stays loaded until you switch the SP-1200 off.</p>
+
+  <h3>If something goes wrong</h3>
+  <dl class="trouble">
+    <div class="danger">
+      <dt><span class="danger-icon" aria-hidden="true">⚠</span> <span class="screen">ReprogramEEPROM? YES/NO</span></dt>
+      <dd><strong>Press <kbd>No</kbd>.</strong> That's Rossum's real EEPROM updater: the card has Rossum's <code>sp1200eefw.bin</code>, not the one built here.</dd>
+    </div>
+    <dt><span class="screen">Fail!Retry?[Y/N]</span></dt>
+    <dd>The SP-1200 couldn't read the file. Press <kbd>Yes</kbd> to try again. If it keeps failing, copy the file to the card again and check its MD5 matches the one shown above.</dd>
+    <dt>Two lines of letters and numbers, then nothing</dt>
+    <dd>The file was damaged on its way into the SP-1200, and mod_pr4x1s stopped instead of running it. Switch off, copy the file to the card again and retry.</dd>
+  </dl>
+  <p class="note"><strong>While mod_pr4x1s is running, don't use Special 28 (UpdateSftware).</strong> Switch the SP-1200 off and on normally first.</p>
+</section>
+</main>
+
+<footer>
+  <p>mod_pr4x1s is not affiliated with Rossum Electro-Music, or with pfer or SPf1200.</p>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
